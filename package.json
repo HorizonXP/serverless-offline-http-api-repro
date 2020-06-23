@@ -1,0 +1,13 @@
+{
+  "name": "httpapi-repro",
+  "version": "1.0.0",
+  "description": "Serverless REST API",
+  "repository": "",
+  "author": "Ritesh Patel <xpatel@pulsecode.ca>",
+  "license": "MIT",
+  "devDependencies": {
+    "aws-sdk": "^2.12.0",
+    "serverless-dynamodb-local": "^0.2.18",
+    "serverless-offline": "^3.8.3"
+  }
+}

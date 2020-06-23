@@ -1,0 +1,55 @@
+service: httpapi-repro
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  stages:
+    - dev
+    - prod
+  profiles:
+    prod: default
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    stages:
+      - ${self:provider.stage}
+    migration:
+      dir: offline/migrations
+  dynamodb_table_name:
+    dev: ${self:service}-${opt:stage, self:provider.stage}
+    prod: ${ssm:/dynamodb/table/name~true}
+  iam_role:
+    prod: ${ssm:/lambda/role/arn~true}
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  role: ${self:custom.iam_role.${self:provider.stage}, ''}
+  stage: ${opt.stage, 'dev'}
+  profile: ${self:custom.profile.${self:provider.stage}, ''}
+  logs:
+    httpApi: true
+  httpApi:
+    cors: true
+  environment:
+    DYNAMODB_TABLE: ${self:custom.dynamodb_table_name.${self:provider.stage}}
+  iamRoleStatements:
+    - ${file(./iam-role-statements.${self:provider.stage}.yml), ''}
+
+
+functions:
+  postForm:
+    handler: form_submissions/handler.create
+    events:
+      - httpApi: 'POST /data'
+  listData:
+    handler: form_submissions/handler.list
+    events:
+      - httpApi: 'GET /data'
+
+resources:
+  - ${file(./dynamodb-resource.${self:provider.stage}.yml), ''}
