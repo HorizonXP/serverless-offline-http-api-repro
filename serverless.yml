@@ -45,11 +45,15 @@ functions:
   postForm:
     handler: form_submissions/handler.create
     events:
-      - httpApi: 'POST /data'
+      - httpApi:
+          method: 'POST'
+          path: /data
   listData:
     handler: form_submissions/handler.list
     events:
-      - httpApi: 'GET /data'
+      - httpApi:
+          method: 'GET'
+          path: /data
 
 resources:
   - ${file(./dynamodb-resource.${self:provider.stage}.yml), ''}
